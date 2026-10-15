@@ -4,8 +4,10 @@
 --   alpha@test.com   beta@test.com
 -- =====================================================================
 
--- Campaign rows: 5 per company
-insert into public.campaign_data (company_name, channel, leads) values
+-- Campaign rows: 5 per company (skipped if the table already has data,
+-- so this file is safe to run more than once)
+insert into public.campaign_data (company_name, channel, leads)
+select * from (values
   ('Alpha Ltd', 'Google',   120),
   ('Alpha Ltd', 'Meta',      85),
   ('Alpha Ltd', 'LinkedIn',  40),
@@ -15,7 +17,9 @@ insert into public.campaign_data (company_name, channel, leads) values
   ('Beta Ltd',  'Meta',     140),
   ('Beta Ltd',  'LinkedIn',  95),
   ('Beta Ltd',  'Email',     20),
-  ('Beta Ltd',  'YouTube',   70);
+  ('Beta Ltd',  'YouTube',   70)
+) as v(company_name, channel, leads)
+where not exists (select 1 from public.campaign_data);
 
 -- Link each auth user to a company.
 -- (Looking up by email here is only for seeding the admin data once;
