@@ -4,52 +4,79 @@
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
   <title>Insigra Reports – Campaign Dashboard</title>
+  <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%232a78d6'/><path d='M9 22V14M16 22V9M23 22v-5' stroke='white' stroke-width='3' stroke-linecap='round'/></svg>" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
   <link rel="stylesheet" href="style.css" />
   <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
 </head>
 <body>
   <!-- Login -->
-  <main id="login-view" class="card narrow" hidden>
-    <h1>Insigra Reports</h1>
-    <p class="muted">Sign in to see your company's campaigns.</p>
-    <form id="login-form">
-      <label>Email
-        <input id="email" type="email" autocomplete="username" required />
-      </label>
-      <label>Password
-        <input id="password" type="password" autocomplete="current-password" required />
-      </label>
-      <button type="submit" id="login-btn">Log in</button>
-      <p id="login-error" class="error" role="alert"></p>
-    </form>
+  <main id="login-view" class="login" hidden>
+    <section class="login-hero">
+      <div class="brand"><span class="logo"></span>Insigra Reports</div>
+      <h1>Your marketing data.<br />Only yours.</h1>
+      <p>Every company sees its own campaigns. Isolation is enforced inside the database with Row-Level Security.</p>
+    </section>
+    <section class="login-panel">
+      <form id="login-form" class="login-card">
+        <h2>Sign in</h2>
+        <p class="muted">Use your company account.</p>
+        <label>Email
+          <input id="email" type="email" autocomplete="username" placeholder="you@company.com" required />
+        </label>
+        <label>Password
+          <input id="password" type="password" autocomplete="current-password" placeholder="••••••••" required />
+        </label>
+        <button type="submit" id="login-btn">Log in</button>
+        <p id="login-error" class="error" role="alert"></p>
+      </form>
+    </section>
   </main>
 
   <!-- Dashboard -->
-  <main id="dashboard-view" hidden>
+  <div id="dashboard-view" hidden>
     <header class="topbar">
-      <div>
-        <h1 id="company-title">Dashboard</h1>
-        <p class="muted" id="user-email"></p>
+      <div class="brand"><span class="logo"></span>Insigra Reports</div>
+      <div class="user">
+        <span class="avatar" id="avatar"></span>
+        <span class="user-email" id="user-email"></span>
+        <button id="logout-btn" class="ghost">Log out</button>
       </div>
-      <button id="logout-btn" class="secondary">Log out</button>
     </header>
 
-    <section class="grid">
-      <div class="card">
-        <h2>Campaign data</h2>
-        <table>
-          <thead><tr><th>Company</th><th>Channel</th><th class="num">Leads</th></tr></thead>
-          <tbody id="data-body"></tbody>
-          <tfoot><tr><th colspan="2">Total</th><th class="num" id="total-leads">0</th></tr></tfoot>
-        </table>
-        <p id="data-error" class="error" role="alert"></p>
+    <main class="dashboard">
+      <div class="page-head">
+        <div>
+          <p class="eyebrow">Campaign overview</p>
+          <h1 id="company-title">Dashboard</h1>
+        </div>
+        <span class="badge" title="Rows are filtered by the database, not the browser">RLS protected</span>
       </div>
-      <div class="card">
-        <h2>Leads by channel</h2>
-        <canvas id="leads-chart" height="260"></canvas>
-      </div>
-    </section>
-  </main>
+
+      <section class="kpis">
+        <div class="kpi"><p class="kpi-label">Total leads</p><p class="kpi-value" id="kpi-total">–</p></div>
+        <div class="kpi"><p class="kpi-label">Top channel</p><p class="kpi-value" id="kpi-top">–</p></div>
+        <div class="kpi"><p class="kpi-label">Channels</p><p class="kpi-value" id="kpi-count">–</p></div>
+      </section>
+
+      <section class="grid">
+        <div class="card">
+          <h2>Leads by channel</h2>
+          <div class="chart-box"><canvas id="leads-chart" aria-label="Bar chart of leads by channel" role="img"></canvas></div>
+        </div>
+        <div class="card">
+          <h2>Campaign data</h2>
+          <table>
+            <thead><tr><th>Company</th><th>Channel</th><th class="num">Leads</th></tr></thead>
+            <tbody id="data-body"></tbody>
+            <tfoot><tr><th colspan="2">Total</th><th class="num" id="total-leads">0</th></tr></tfoot>
+          </table>
+          <p id="data-error" class="error" role="alert"></p>
+        </div>
+      </section>
+    </main>
+  </div>
 
   <script type="module" src="app.js"></script>
 </body>
