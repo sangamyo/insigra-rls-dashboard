@@ -3,45 +3,94 @@
 <head>
   <meta charset="utf-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <meta name="description" content="Insigra Reports – each company sees only its own marketing campaign data." />
   <title>Insigra Reports – Campaign Dashboard</title>
   <link rel="icon" href="data:image/svg+xml,<svg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'><rect width='32' height='32' rx='8' fill='%232a78d6'/><path d='M9 22V14M16 22V9M23 22v-5' stroke='white' stroke-width='3' stroke-linecap='round'/></svg>" />
   <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
   <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" />
   <link rel="stylesheet" href="style.css" />
-  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+  <!-- Apply saved theme before first paint (no flash) -->
+  <script>
+    try { const t = localStorage.getItem('theme'); if (t) document.documentElement.dataset.theme = t; } catch {}
+  </script>
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js" defer></script>
 </head>
 <body>
-  <!-- Login -->
+  <!-- Shown until we know whether a session exists -->
+  <div id="boot" class="boot" aria-label="Loading"><span class="spinner"></span></div>
+
+  <!-- ============ Login ============ -->
   <main id="login-view" class="login" hidden>
-    <section class="login-hero">
-      <div class="brand"><span class="logo"></span>Insigra Reports</div>
-      <h1>Your marketing data.<br />Only yours.</h1>
-      <p>Every company sees its own campaigns. Isolation is enforced inside the database with Row-Level Security.</p>
+    <section class="login-hero" aria-hidden="true">
+      <div class="brand brand--light"><span class="logo"></span>Insigra Reports</div>
+      <div class="hero-copy">
+        <h1>Your marketing data.<br />Only yours.</h1>
+        <p>Every company sees its own campaigns. Isolation is enforced inside the database with Row-Level Security, not in the browser.</p>
+        <ul class="hero-points">
+          <li>Per-company access from your login</li>
+          <li>Leads by channel at a glance</li>
+          <li>Secured by Supabase Auth + Postgres RLS</li>
+        </ul>
+      </div>
+      <p class="hero-foot">© Insigra Reports</p>
     </section>
+
     <section class="login-panel">
-      <form id="login-form" class="login-card">
-        <h2>Sign in</h2>
-        <p class="muted">Use your company account.</p>
-        <label>Email
+      <form id="login-form" class="login-card" novalidate>
+        <div class="brand brand--mobile"><span class="logo"></span>Insigra Reports</div>
+        <h2>Welcome back</h2>
+        <p class="muted">Sign in to view your company's campaigns.</p>
+
+        <div class="field">
+          <label for="email">Email</label>
           <input id="email" type="email" autocomplete="username" placeholder="you@company.com" required />
-        </label>
-        <label>Password
-          <input id="password" type="password" autocomplete="current-password" placeholder="••••••••" required />
-        </label>
-        <button type="submit" id="login-btn">Log in</button>
-        <p id="login-error" class="error" role="alert"></p>
+        </div>
+
+        <div class="field">
+          <label for="password">Password</label>
+          <div class="input-wrap">
+            <input id="password" type="password" autocomplete="current-password" placeholder="Enter your password" required />
+            <button type="button" id="toggle-pw" class="icon-btn" aria-label="Show password" aria-pressed="false">
+              <svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M2 12s3.5-7 10-7 10 7 10 7-3.5 7-10 7S2 12 2 12Z"/><circle cx="12" cy="12" r="3" fill="none" stroke="currentColor" stroke-width="2"/></svg>
+            </button>
+          </div>
+        </div>
+
+        <button type="submit" id="login-btn" class="btn btn-primary btn-block">
+          <span class="btn-label">Sign in</span>
+          <span class="spinner spinner--sm" aria-hidden="true"></span>
+        </button>
+        <p id="login-error" class="alert" role="alert" hidden></p>
+
+        <div class="demo">
+          <span class="demo-label">Demo accounts</span>
+          <div class="demo-chips">
+            <button type="button" class="chip" data-email="alpha@test.com">alpha@test.com</button>
+            <button type="button" class="chip" data-email="beta@test.com">beta@test.com</button>
+          </div>
+        </div>
       </form>
     </section>
   </main>
 
-  <!-- Dashboard -->
-  <div id="dashboard-view" hidden>
+  <!-- ============ Dashboard ============ -->
+  <div id="dashboard-view" class="app" hidden>
     <header class="topbar">
       <div class="brand"><span class="logo"></span>Insigra Reports</div>
-      <div class="user">
-        <span class="avatar" id="avatar"></span>
-        <span class="user-email" id="user-email"></span>
-        <button id="logout-btn" class="ghost">Log out</button>
+      <div class="topbar-actions">
+        <button id="theme-btn" class="icon-btn" aria-label="Toggle dark mode" title="Toggle theme">
+          <svg class="i-sun" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><circle cx="12" cy="12" r="4" fill="none" stroke="currentColor" stroke-width="2"/><path stroke="currentColor" stroke-width="2" stroke-linecap="round" d="M12 2v2M12 20v2M4.9 4.9l1.4 1.4M17.7 17.7l1.4 1.4M2 12h2M20 12h2M4.9 19.1l1.4-1.4M17.7 6.3l1.4-1.4"/></svg>
+          <svg class="i-moon" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linejoin="round" d="M21 12.8A9 9 0 1 1 11.2 3a7 7 0 0 0 9.8 9.8Z"/></svg>
+        </button>
+        <div class="user">
+          <span class="avatar" id="avatar" aria-hidden="true"></span>
+          <div class="user-text">
+            <span class="user-company" id="user-company"></span>
+            <span class="user-email" id="user-email"></span>
+          </div>
+        </div>
+        <button id="logout-btn" class="btn btn-ghost">Log out</button>
       </div>
     </header>
 
@@ -49,32 +98,82 @@
       <div class="page-head">
         <div>
           <p class="eyebrow">Campaign overview</p>
-          <h1 id="company-title">Dashboard</h1>
+          <h1 id="company-title"><span class="skeleton skeleton--title"></span></h1>
+          <p class="subtitle" id="subtitle">Loading your data…</p>
         </div>
-        <span class="badge" title="Rows are filtered by the database, not the browser">RLS protected</span>
+        <span class="badge" title="Rows are filtered by Postgres Row-Level Security, not the browser">
+          <svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round" d="M12 3 4 6v6c0 4.5 3.4 8.3 8 9 4.6-.7 8-4.5 8-9V6l-8-3Z M9 12l2 2 4-4"/></svg>
+          Protected by RLS
+        </span>
       </div>
 
-      <section class="kpis">
-        <div class="kpi"><p class="kpi-label">Total leads</p><p class="kpi-value" id="kpi-total">–</p></div>
-        <div class="kpi"><p class="kpi-label">Top channel</p><p class="kpi-value" id="kpi-top">–</p></div>
-        <div class="kpi"><p class="kpi-label">Channels</p><p class="kpi-value" id="kpi-count">–</p></div>
+      <div id="data-error" class="alert alert--block" role="alert" hidden>
+        <span id="data-error-text"></span>
+        <button id="retry-btn" class="btn btn-ghost btn-sm">Retry</button>
+      </div>
+
+      <section class="kpis" aria-live="polite">
+        <article class="kpi">
+          <div class="kpi-icon"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M16 21v-2a4 4 0 0 0-4-4H6a4 4 0 0 0-4 4v2M9 11a4 4 0 1 0 0-8 4 4 0 0 0 0 8ZM22 21v-2a4 4 0 0 0-3-3.9M16 3.1a4 4 0 0 1 0 7.8"/></svg></div>
+          <p class="kpi-label">Total leads</p>
+          <p class="kpi-value" id="kpi-total"><span class="skeleton"></span></p>
+          <p class="kpi-sub" id="kpi-total-sub">&nbsp;</p>
+        </article>
+        <article class="kpi">
+          <div class="kpi-icon"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M6 9H4.5a2.5 2.5 0 0 1 0-5H6M18 9h1.5a2.5 2.5 0 0 0 0-5H18M4 22h16M10 14.7V17c0 .6-.5 1-1 1.2C7.8 18.8 7 20.2 7 22M14 14.7V17c0 .6.5 1 1 1.2 1.2.6 2 2 2 3.8M18 2H6v7a6 6 0 0 0 12 0V2Z"/></svg></div>
+          <p class="kpi-label">Top channel</p>
+          <p class="kpi-value" id="kpi-top"><span class="skeleton"></span></p>
+          <p class="kpi-sub" id="kpi-top-sub">&nbsp;</p>
+        </article>
+        <article class="kpi">
+          <div class="kpi-icon"><svg viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M3 3v18h18M8 17V11M13 17V7M18 17v-4"/></svg></div>
+          <p class="kpi-label">Avg. leads / channel</p>
+          <p class="kpi-value" id="kpi-avg"><span class="skeleton"></span></p>
+          <p class="kpi-sub" id="kpi-avg-sub">&nbsp;</p>
+        </article>
       </section>
 
       <section class="grid">
-        <div class="card">
-          <h2>Leads by channel</h2>
-          <div class="chart-box"><canvas id="leads-chart" aria-label="Bar chart of leads by channel" role="img"></canvas></div>
-        </div>
-        <div class="card">
-          <h2>Campaign data</h2>
-          <table>
-            <thead><tr><th>Company</th><th>Channel</th><th class="num">Leads</th></tr></thead>
-            <tbody id="data-body"></tbody>
-            <tfoot><tr><th colspan="2">Total</th><th class="num" id="total-leads">0</th></tr></tfoot>
-          </table>
-          <p id="data-error" class="error" role="alert"></p>
-        </div>
+        <article class="card">
+          <header class="card-head">
+            <h2>Leads by channel</h2>
+            <span class="card-meta" id="chart-meta"></span>
+          </header>
+          <div class="chart-box">
+            <canvas id="leads-chart" role="img" aria-label="Bar chart of leads by channel"></canvas>
+            <div class="skeleton skeleton--chart" id="chart-skeleton"></div>
+          </div>
+        </article>
+
+        <article class="card">
+          <header class="card-head">
+            <h2>Campaign data</h2>
+            <span class="card-meta" id="table-meta"></span>
+          </header>
+          <div class="table-wrap">
+            <table>
+              <thead>
+                <tr>
+                  <th scope="col"><button class="sort" data-key="channel">Channel</button></th>
+                  <th scope="col" class="hide-sm">Company</th>
+                  <th scope="col" class="num"><button class="sort" data-key="leads" aria-sort="descending">Leads</button></th>
+                  <th scope="col" class="num">Share</th>
+                </tr>
+              </thead>
+              <tbody id="data-body">
+                <tr class="skeleton-row"><td colspan="4"><span class="skeleton"></span></td></tr>
+                <tr class="skeleton-row"><td colspan="4"><span class="skeleton"></span></td></tr>
+                <tr class="skeleton-row"><td colspan="4"><span class="skeleton"></span></td></tr>
+              </tbody>
+              <tfoot>
+                <tr><th scope="row">Total</th><td class="hide-sm"></td><td class="num" id="total-leads">–</td><td class="num">100%</td></tr>
+              </tfoot>
+            </table>
+          </div>
+        </article>
       </section>
+
+      <footer class="foot">Data access is enforced by the database. This page never filters by company.</footer>
     </main>
   </div>
 
