@@ -39,7 +39,8 @@ create policy "Users read own company campaigns"
 4. **Verify RLS in the DB:** run each block of [`supabase/03_test_rls.sql`](supabase/03_test_rls.sql) separately. Alpha should see 5 rows, Beta 5 different rows, anon 0, and the insert should fail.
 5. **Configure the frontend:** put your Project URL and anon key from Project Settings → API into [`config.js`](config.js).
 6. **Run locally:** `npx serve .` (or any static server), then open the printed URL.
-7. **Deploy:** push to GitHub, then import the repo in Vercel or Netlify as a static site (no build command, output dir `.`). GitHub Pages also works.
+7. **End-to-end test (optional):** `SB_URL=... SB_ANON=... SB_SERVICE=... node tests/rls-e2e.mjs`. It signs in both test users through the real Auth API (admin magic link, no passwords) and checks, over the public REST API, that each sees only its own rows, can't write, and that a tampered token is rejected. The service_role key is only used locally to mint the test sessions; it never goes in the frontend.
+8. **Deploy:** push to GitHub, then import the repo in Vercel or Netlify as a static site (no build command, output dir `.`). GitHub Pages also works.
 
 ## Files
 
@@ -51,4 +52,5 @@ style.css                       styling
 supabase/01_schema_and_rls.sql  tables, index, RLS + policies
 supabase/02_seed.sql            10 campaign rows + profile links
 supabase/03_test_rls.sql        SQL proof that isolation works
+tests/rls-e2e.mjs               end-to-end API test (20 checks)
 ```
