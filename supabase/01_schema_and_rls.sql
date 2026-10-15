@@ -32,7 +32,7 @@ create policy "Users read own profile"
   on public.profiles
   for select
   to authenticated
-  using (id = auth.uid());
+  using (id = (select auth.uid()));  -- (select …) = evaluated once per query, not per row
 
 -- THE IMPORTANT ONE:
 -- A logged-in user sees a campaign row only if its company_name equals
