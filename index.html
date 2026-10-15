@@ -1,0 +1,56 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Insigra Reports – Campaign Dashboard</title>
+  <link rel="stylesheet" href="style.css" />
+  <script src="https://cdn.jsdelivr.net/npm/chart.js@4.4.1/dist/chart.umd.min.js"></script>
+</head>
+<body>
+  <!-- Login -->
+  <main id="login-view" class="card narrow" hidden>
+    <h1>Insigra Reports</h1>
+    <p class="muted">Sign in to see your company's campaigns.</p>
+    <form id="login-form">
+      <label>Email
+        <input id="email" type="email" autocomplete="username" required />
+      </label>
+      <label>Password
+        <input id="password" type="password" autocomplete="current-password" required />
+      </label>
+      <button type="submit" id="login-btn">Log in</button>
+      <p id="login-error" class="error" role="alert"></p>
+    </form>
+  </main>
+
+  <!-- Dashboard -->
+  <main id="dashboard-view" hidden>
+    <header class="topbar">
+      <div>
+        <h1 id="company-title">Dashboard</h1>
+        <p class="muted" id="user-email"></p>
+      </div>
+      <button id="logout-btn" class="secondary">Log out</button>
+    </header>
+
+    <section class="grid">
+      <div class="card">
+        <h2>Campaign data</h2>
+        <table>
+          <thead><tr><th>Company</th><th>Channel</th><th class="num">Leads</th></tr></thead>
+          <tbody id="data-body"></tbody>
+          <tfoot><tr><th colspan="2">Total</th><th class="num" id="total-leads">0</th></tr></tfoot>
+        </table>
+        <p id="data-error" class="error" role="alert"></p>
+      </div>
+      <div class="card">
+        <h2>Leads by channel</h2>
+        <canvas id="leads-chart" height="260"></canvas>
+      </div>
+    </section>
+  </main>
+
+  <script type="module" src="app.js"></script>
+</body>
+</html>
