@@ -38,7 +38,10 @@ $('login-form').addEventListener('submit', async (e) => {
   }
 });
 
-$('logout-btn').addEventListener('click', () => supabase.auth.signOut());
+$('logout-btn').addEventListener('click', async () => {
+  // Clear this browser session without waiting for a global token revocation request.
+  await supabase.auth.signOut({ scope: 'local' });
+});
 
 // Fires on page load (restored session) and on every login/logout.
 supabase.auth.onAuthStateChange((event, session) => {
